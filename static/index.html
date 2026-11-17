@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Edge Pack Desk</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f3f6f1;
+      --surface: #ffffff;
+      --ink: #172321;
+      --muted: #596966;
+      --line: #d7e0da;
+      --green: #176957;
+      --green-dark: #0e4b40;
+      --lime: #d8f16a;
+      --blue: #42657b;
+      --warning: #8a5a17;
+      --shadow: 0 16px 40px rgb(23 35 33 / 8%);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+      font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, textarea { font: inherit; }
+    .layout { min-height: 100vh; display: grid; grid-template-columns: 276px minmax(0, 1fr); }
+    .rail {
+      display: flex;
+      flex-direction: column;
+      gap: 34px;
+      padding: 28px 22px;
+      background: #e6eee8;
+      border-right: 1px solid var(--line);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      background: var(--green);
+      color: white;
+      font: 700 15px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0;
+    }
+    .brand-name { font: 700 17px/1.1 Georgia, "Times New Roman", serif; }
+    .brand-caption { margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .rail-section { display: grid; gap: 12px; }
+    .eyebrow {
+      color: var(--muted);
+      font: 700 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .scope {
+      margin: 0;
+      padding-left: 12px;
+      border-left: 2px solid var(--green);
+      color: #314541;
+      font-size: 13px;
+    }
+    .status-line { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 12px; }
+    .status-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: #a4b2ac; }
+    .status-dot.ready { background: #22816a; box-shadow: 0 0 0 3px rgb(34 129 106 / 13%); }
+    .status-dot.warn { background: #c28a31; }
+    .source-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .source-list li { padding-top: 10px; border-top: 1px solid #cdd9d1; }
+    .source-title { display: block; color: var(--ink); font-size: 12px; font-weight: 650; }
+    .source-meta { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+    .rail-foot { margin-top: auto; color: var(--muted); font-size: 11px; }
+    .main { min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      min-height: 64px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 12px clamp(18px, 4vw, 58px);
+      border-bottom: 1px solid var(--line);
+    }
+    .local-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: #e2f0e9;
+      color: var(--green-dark);
+      font: 700 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+    }
+    .local-badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #23856c; }
+    .content { width: min(940px, 100%); margin: 0 auto; padding: 50px clamp(18px, 5vw, 72px) 36px; }
+    .intro { padding-bottom: 25px; border-bottom: 1px solid var(--line); }
+    h1 { margin: 8px 0 8px; font: 400 clamp(30px, 4vw, 42px)/1.08 Georgia, "Times New Roman", serif; letter-spacing: 0; }
+    .intro p { max-width: 620px; margin: 0; color: var(--muted); font-size: 14px; }
+    .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 21px; }
+    .suggestion {
+      min-height: 34px;
+      padding: 6px 11px;
+      border: 1px solid #c7d4cc;
+      border-radius: 2px;
+      background: transparent;
+      color: #344b45;
+      text-align: left;
+      cursor: pointer;
+    }
+    .suggestion:hover { border-color: var(--green); color: var(--green-dark); background: #e8f1eb; }
+    .thread { display: grid; gap: 22px; padding: 24px 0; }
+    .welcome { display: flex; gap: 13px; align-items: flex-start; color: #3e514c; font-size: 13px; }
+    .welcome-mark { flex: 0 0 auto; display: grid; place-items: center; width: 28px; height: 28px; background: var(--lime); color: #25351e; font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .message { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 13px; animation: appear 180ms ease-out both; }
+    .message-mark { width: 28px; height: 28px; display: grid; place-items: center; background: #dbe7e0; color: var(--green-dark); font: 700 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .message.user .message-mark { background: #e5e9ef; color: var(--blue); }
+    .message-body { min-width: 0; padding-top: 1px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .message-label { display: block; margin-bottom: 5px; color: var(--muted); font: 700 10px ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
+    .answer-copy { line-height: 1.65; }
+    .references { display: grid; gap: 7px; margin-top: 15px; padding-top: 12px; border-top: 1px solid var(--line); }
+    .references-title { color: var(--muted); font: 700 10px ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
+    .reference { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 8px; font-size: 12px; }
+    .reference-id { color: var(--green); font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .reference a { color: #315e76; text-decoration-thickness: 1px; text-underline-offset: 3px; overflow-wrap: anywhere; }
+    .reference a:hover { color: var(--green-dark); }
+    .reference-version { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; }
+    .composer-wrap { position: sticky; bottom: 0; margin-top: auto; padding: 12px clamp(18px, 5vw, 72px) 22px; background: linear-gradient(180deg, rgb(243 246 241 / 0%), var(--paper) 18%); }
+    .composer { width: min(796px, 100%); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; margin: 0 auto; padding: 10px; border: 1px solid #b9c9bf; background: var(--surface); box-shadow: var(--shadow); }
+    textarea { width: 100%; min-height: 48px; max-height: 160px; resize: vertical; border: 0; outline: 0; padding: 12px 10px; color: var(--ink); background: transparent; }
+    textarea::placeholder { color: #81908a; }
+    .ask-button { align-self: end; min-width: 76px; height: 42px; border: 0; background: var(--green); color: white; font-weight: 700; cursor: pointer; }
+    .ask-button:hover { background: var(--green-dark); }
+    .ask-button:disabled { background: #8a9a94; cursor: wait; }
+    .composer-note { width: min(796px, 100%); margin: 8px auto 0; color: var(--muted); font-size: 10px; }
+    .setup-note { padding: 14px; border-left: 3px solid #c28a31; background: #fff8e9; color: #62491f; font-size: 12px; white-space: pre-wrap; }
+    @keyframes appear { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; scroll-behavior: auto !important; } }
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .rail { gap: 15px; padding: 13px 18px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .rail-section, .rail-foot { display: none; }
+      .brand-mark { width: 34px; height: 34px; }
+      .topbar { min-height: 48px; padding: 8px 18px; }
+      .content { padding-top: 30px; }
+      .composer-wrap { padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="rail" aria-label="Knowledge base status">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">EP</div>
+        <div><div class="brand-name">Edge Pack Desk</div><div class="brand-caption">Local repository assistant</div></div>
+      </div>
+      <section class="rail-section">
+        <div class="eyebrow">Knowledge boundary</div>
+        <p class="scope">Answers are grounded in the indexed Edge Pack source and official getting-started guide.</p>
+      </section>
+      <section class="rail-section">
+        <div class="eyebrow">Index status</div>
+        <div class="status-line"><span class="status-dot" id="status-dot"></span><span id="status-text">Checking local index...</span></div>
+        <ul class="source-list" id="source-list" aria-label="Indexed sources"></ul>
+      </section>
+      <div class="rail-foot">Sources stay on this machine. Model calls use loopback only.</div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><span class="local-badge">Local only</span></header>
+      <section class="content">
+        <div class="intro">
+          <div class="eyebrow">Open Edge Platform / Edge Pack</div>
+          <h1>Ask the source.</h1>
+          <p>Explore installation methods, profiles, prerequisites, and repository behavior. Answers include links to the source passages used.</p>
+          <div class="suggestions" aria-label="Example questions">
+            <button class="suggestion" type="button">Which installation methods are available?</button>
+            <button class="suggestion" type="button">What prerequisites does the guide list?</button>
+            <button class="suggestion" type="button">How do the TUI and CLI differ?</button>
+          </div>
+        </div>
+        <div class="thread" id="thread" aria-live="polite">
+          <div class="welcome"><span class="welcome-mark" aria-hidden="true">R</span><span>Ask about Edge Pack. Retrieved repository content is treated as reference material, not as instructions.</span></div>
+        </div>
+      </section>
+      <div class="composer-wrap">
+        <form class="composer" id="question-form">
+          <textarea id="question" name="question" maxlength="2000" rows="2" placeholder="Ask a question about Edge Pack" aria-label="Question about Edge Pack" required></textarea>
+          <button class="ask-button" id="ask-button" type="submit">Ask</button>
+        </form>
+        <div class="composer-note">Answers can be incomplete. Check the linked source, especially for development-version documentation.</div>
+      </div>
+    </main>
+  </div>
+  <script>
+    const form = document.querySelector("#question-form");
+    const questionField = document.querySelector("#question");
+    const askButton = document.querySelector("#ask-button");
+    const thread = document.querySelector("#thread");
+    const statusText = document.querySelector("#status-text");
+    const statusDot = document.querySelector("#status-dot");
+    const sourceList = document.querySelector("#source-list");
+
+    function addMessage(role, text, sources = []) {
+      const message = document.createElement("article");
+      message.className = `message ${role}`;
+      const mark = document.createElement("div");
+      mark.className = "message-mark";
+      mark.textContent = role === "user" ? "YOU" : "EP";
+      const body = document.createElement("div");
+      body.className = "message-body";
+      const label = document.createElement("span");
+      label.className = "message-label";
+      label.textContent = role === "user" ? "Question" : "Answer";
+      const copy = document.createElement("div");
+      copy.className = "answer-copy";
+      copy.textContent = text;
+      body.append(label, copy);
+      if (sources.length) {
+        const references = document.createElement("div");
+        references.className = "references";
+        const heading = document.createElement("div");
+        heading.className = "references-title";
+        heading.textContent = "Retrieved sources";
+        references.append(heading);
+        sources.forEach((source, index) => {
+          const row = document.createElement("div");
+          row.className = "reference";
+          const referenceId = document.createElement("span");
+          referenceId.className = "reference-id";
+          referenceId.textContent = `[S${index + 1}]`;
+          const details = document.createElement("span");
+          const link = document.createElement("a");
+          link.href = source.citation;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = source.title || source.citation;
+          details.append(link);
+          const version = document.createElement("span");
+          version.className = "reference-version";
+          version.textContent = `${source.kind} · ${source.version}`;
+          details.append(version);
+          row.append(referenceId, details);
+          references.append(row);
+        });
+        body.append(references);
+      }
+      message.append(mark, body);
+      thread.append(message);
+      message.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    async function refreshStatus() {
+      try {
+        const response = await fetch("/api/status", { cache: "no-store" });
+        const status = await response.json();
+        const ready = status.indexed_chunks > 0;
+        statusDot.className = `status-dot ${ready ? "ready" : "warn"}`;
+        statusText.textContent = ready ? `${status.indexed_chunks.toLocaleString()} passages indexed` : "Index not built";
+        sourceList.replaceChildren();
+        status.sources.forEach((source) => {
+          const item = document.createElement("li");
+          const title = document.createElement("span");
+          title.className = "source-title";
+          title.textContent = source.kind === "repository" ? "Edge Pack repository" : "Getting-started guide";
+          const meta = document.createElement("span");
+          meta.className = "source-meta";
+          const itemLabel = source.kind === "repository" ? "files" : "pages";
+          meta.textContent = `${source.source_count} ${itemLabel} · ${source.version}`;
+          item.append(title, meta);
+          sourceList.append(item);
+        });
+        if (!ready) {
+          const note = document.createElement("div");
+          note.className = "setup-note";
+          note.textContent = "No passages indexed yet. In a terminal, run:\npython3 rag.py sync";
+          thread.append(note);
+        }
+      } catch {
+        statusDot.className = "status-dot warn";
+        statusText.textContent = "Local service unavailable";
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const question = questionField.value.trim();
+      if (!question) return;
+      addMessage("user", question);
+      questionField.value = "";
+      askButton.disabled = true;
+      askButton.textContent = "...";
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || "The local request failed.");
+        addMessage("assistant", result.answer, result.sources);
+      } catch (error) {
+        addMessage("assistant", error.message || "The local model could not answer this question.");
+      } finally {
+        askButton.disabled = false;
+        askButton.textContent = "Ask";
+        questionField.focus();
+      }
+    });
+
+    document.querySelectorAll(".suggestion").forEach((button) => {
+      button.addEventListener("click", () => {
+        questionField.value = button.textContent;
+        questionField.focus();
+      });
+    });
+    refreshStatus();
+  </script>
+</body>
+</html>
